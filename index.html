@@ -1,0 +1,403 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Smart Caller ID Pro</title>
+<style>
+:root {
+  --bg: #0b1020;
+  --panel: #141c30;
+  --text: #f4f7ff;
+  --muted: #9aa9c5;
+  --accent: #7c6cff;
+  --border: #27324b;
+}
+body.light {
+  --bg: #f2f5fc;
+  --panel: #ffffff;
+  --text: #18233b;
+  --muted: #61708a;
+  --accent: #5544dd;
+  --border: #dce3f0;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 15px Arial, sans-serif;
+  transition: .2s;
+}
+header {
+  padding: 22px 5%;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.logo { font-size: 22px; font-weight: 800; }
+.logo span { color: var(--accent); }
+button, input {
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  font-size: 14px;
+}
+button {
+  background: var(--accent);
+  color: white;
+  cursor: pointer;
+  border: 0;
+  font-weight: 700;
+}
+button.secondary {
+  background: var(--panel);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+button.danger { background: #b93650; }
+main { max-width: 1000px; margin: auto; padding: 25px 18px; }
+h1 { margin-bottom: 6px; font-size: 30px; }
+p { color: var(--muted); line-height: 1.5; }
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin: 25px 0;
+}
+.card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 19px;
+  min-width: 0;
+}
+.stat { font-size: 27px; font-weight: bold; margin-top: 12px; }
+.label { color: var(--muted); font-size: 13px; }
+.columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+h2 { font-size: 18px; margin-top: 0; }
+input {
+  width: 100%;
+  margin: 6px 0;
+  background: var(--bg);
+  color: var(--text);
+}
+.actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+.actions button { flex: 1; }
+.contact {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 0;
+  border-bottom: 1px solid var(--border);
+}
+.avatar {
+  width: 42px; height: 42px;
+  border-radius: 50%;
+  display: grid; place-items: center;
+  background: #37305f;
+  color: white;
+  font-weight: bold;
+  flex-shrink: 0;
+}
+.details { flex: 1; min-width: 0; }
+.details strong { display: block; overflow-wrap: anywhere; }
+.details small { color: var(--muted); }
+.icon-btn { padding: 8px 10px; }
+#message { min-height: 22px; color: var(--accent); }
+.empty { color: var(--muted); padding: 15px 0; }
+footer { text-align: center; padding: 28px; color: var(--muted); font-size: 12px; }
+@media(max-width:650px) {
+  .grid { grid-template-columns: 1fr; }
+  .columns { grid-template-columns: 1fr; }
+  h1 { font-size: 25px; }
+  header { padding: 16px; }
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">✦ Smart Caller <span>Pro</span></div>
+  <button class="secondary" id="themeBtn">☀ / ☾ Theme</button>
+</header>
+
+<main>
+  <h1>Caller Dashboard</h1>
+  <p>Manage your contacts with a clean, premium interface.</p>
+
+  <div class="grid">
+    <div class="card">
+      <div class="label">TOTAL CONTACTS</div>
+      <div class="stat" id="total">0</div>
+    </div>
+    <div class="card">
+      <div class="label">FAVOURITES</div>
+      <div class="stat" id="favs">0</div>
+    </div>
+    <div class="card">
+      <div class="label">SEARCHES THIS SESSION</div>
+      <div class="stat" id="searches">0</div>
+    </div>
+  </div>
+
+  <div class="columns">
+    <section class="card">
+      <h2>⌕ Find a caller</h2>
+      <input id="search" placeholder="Enter phone number"
+             inputmode="tel">
+      <button id="findBtn">Search Caller</button>
+      <p id="result" aria-live="polite">Search a saved contact.</p>
+
+      <h2 style="margin-top:28px">＋ Add contact</h2>
+      <input id="name" placeholder="Full name">
+      <input id="phone" placeholder="10-digit phone number"
+             inputmode="tel">
+      <div class="actions">
+        <button id="saveBtn">Save Contact</button>
+        <button class="secondary" id="clearBtn">Clear</button>
+      </div>
+      <p id="message" aria-live="polite"></p>
+    </section>
+
+    <section class="card">
+      <h2>Recent searches</h2>
+      <div id="history" class="empty">No searches yet.</div>
+      <button class="secondary" id="clearHistory"
+              style="margin-top:12px;width:100%">
+        Clear History
+      </button>
+    </section>
+  </div>
+
+  <section class="card" style="margin-top:16px">
+    <h2>♡ My Contacts</h2>
+    <input id="filter" placeholder="Filter saved contacts...">
+    <div class="actions">
+      <button class="secondary" id="allBtn">All Contacts</button>
+      <button class="secondary" id="favBtn">★ Favourites</button>
+    </div>
+    <div id="contacts"></div>
+  </section>
+
+  <p>
+    Demo notice: this app searches your saved contacts.
+    It does not detect real incoming calls.
+  </p>
+</main>
+
+<footer>SMART CALLER PRO · PERSONAL CONTACT MANAGER</footer>
+
+<script>
+const starter = [
+  { id: 1, name: "Rahul Sharma", phone: "9876543210", fav: true },
+  { id: 2, name: "Aman Verma", phone: "9123456780", fav: false }
+];
+
+function load(key, fallback) {
+  try {
+    const value = localStorage.getItem(key);
+    return value ? JSON.parse(value) : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+let contacts = load("scp_contacts", starter);
+let history = load("scp_history", []);
+let searches = 0;
+let showFavs = false;
+
+const $ = id => document.getElementById(id);
+
+function save() {
+  localStorage.setItem("scp_contacts", JSON.stringify(contacts));
+  localStorage.setItem("scp_history", JSON.stringify(history));
+}
+
+function normalize(value) {
+  let n = value.replace(/\D/g, "");
+  if (n.startsWith("91") && n.length === 12) n = n.slice(2);
+  return n;
+}
+
+function render() {
+  $("total").textContent = contacts.length;
+  $("favs").textContent = contacts.filter(c => c.fav).length;
+  $("searches").textContent = searches;
+
+  const query = $("filter").value.toLowerCase();
+  const visible = contacts.filter(c =>
+    (!showFavs || c.fav) &&
+    (c.name.toLowerCase().includes(query) || c.phone.includes(query))
+  );
+
+  $("contacts").replaceChildren();
+
+  if (!visible.length) {
+    $("contacts").textContent = "No matching contacts.";
+  }
+
+  visible.forEach(c => {
+    const row = document.createElement("div");
+    row.className = "contact";
+
+    const avatar = document.createElement("div");
+    avatar.className = "avatar";
+    avatar.textContent = c.name.slice(0, 1).toUpperCase();
+
+    const details = document.createElement("div");
+    details.className = "details";
+
+    const strong = document.createElement("strong");
+    strong.textContent = c.name;
+    const small = document.createElement("small");
+    small.textContent = c.phone;
+    details.append(strong, small);
+
+    const fav = document.createElement("button");
+    fav.className = "secondary icon-btn";
+    fav.textContent = c.fav ? "★" : "☆";
+    fav.title = "Toggle favourite";
+    fav.onclick = () => {
+      c.fav = !c.fav;
+      save();
+      render();
+    };
+
+    const del = document.createElement("button");
+    del.className = "danger icon-btn";
+    del.textContent = "×";
+    del.title = "Delete contact";
+    del.onclick = () => {
+      contacts = contacts.filter(item => item.id !== c.id);
+      save();
+      render();
+    };
+
+    row.append(avatar, details, fav, del);
+    $("contacts").append(row);
+  });
+
+  $("history").replaceChildren();
+  if (!history.length) {
+    $("history").textContent = "No searches yet.";
+    $("history").className = "empty";
+  } else {
+    $("history").className = "";
+    history.slice(0, 8).forEach(item => {
+      const row = document.createElement("div");
+      row.className = "contact";
+      const details = document.createElement("div");
+      details.className = "details";
+      const strong = document.createElement("strong");
+      strong.textContent = item.name;
+      const small = document.createElement("small");
+      small.textContent = item.phone;
+      details.append(strong, small);
+      row.append(details);
+      $("history").append(row);
+    });
+  }
+}
+
+$("findBtn").onclick = () => {
+  const number = normalize($("search").value);
+  $("result").textContent = "";
+  if (!/^\d{10}$/.test(number)) {
+    $("result").textContent = "Enter a valid 10-digit number.";
+    return;
+  }
+
+  searches++;
+  const found = contacts.find(c => c.phone === number);
+  const entry = {
+    phone: number,
+    name: found ? found.name : "Unknown Caller"
+  };
+  history.unshift(entry);
+  history = history.slice(0, 30);
+  $("result").textContent = found
+    ? "Caller found: " + found.name
+    : "Unknown caller: number not saved.";
+  save();
+  render();
+};
+
+$("saveBtn").onclick = () => {
+  const name = $("name").value.trim();
+  const phone = normalize($("phone").value);
+
+  if (!name || !/^\d{10}$/.test(phone)) {
+    $("message").textContent = "Enter a name and valid 10-digit number.";
+    return;
+  }
+
+  const existing = contacts.find(c => c.phone === phone);
+  if (existing) {
+    existing.name = name;
+    $("message").textContent = "Contact updated.";
+  } else {
+    contacts.push({
+      id: Date.now(),
+      name,
+      phone,
+      fav: false
+    });
+    $("message").textContent = "Contact saved successfully.";
+  }
+
+  save();
+  $("name").value = "";
+  $("phone").value = "";
+  render();
+};
+
+$("clearBtn").onclick = () => {
+  $("name").value = "";
+  $("phone").value = "";
+  $("message").textContent = "";
+};
+
+$("filter").addEventListener("input", render);
+
+$("allBtn").onclick = () => {
+  showFavs = false;
+  render();
+};
+
+$("favBtn").onclick = () => {
+  showFavs = true;
+  render();
+};
+
+$("clearHistory").onclick = () => {
+  history = [];
+  save();
+  render();
+};
+
+$("themeBtn").onclick = () => {
+  document.body.classList.toggle("light");
+  localStorage.setItem(
+    "scp_light",
+    document.body.classList.contains("light") ? "1" : "0"
+  );
+};
+
+if (localStorage.getItem("scp_light") === "1") {
+  document.body.classList.add("light");
+}
+
+render();
+</script>
+</body>
+</html>
+
+
